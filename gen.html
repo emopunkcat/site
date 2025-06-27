@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>blog html genner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #1a202c;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 2.25rem;
+            font-weight: 700;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+        }
+        textarea {
+            min-height: 180px;
+            resize: vertical;
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+        button {
+            background-color: #4299e1;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        button:hover {
+            background-color: #3182ce;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #generatedHtmlOutput {
+            background-color: #f8f8f8;
+            border: 1px dashed #a0aec0;
+            padding: 15px;
+            min-height: 250px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .message-box {
+            display: none;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .message-box.show {
+            opacity: 1;
+        }
+        .bg-d1fae5 { background-color: #d1fae5; } /* Tailwind green-100 */
+        .text-065f46 { color: #065f46; } /* Tailwind green-800 */
+        .bg-red-100 { background-color: #fee2e2; } /* Tailwind red-100 */
+        .text-red-800 { color: #991b1b; } /* Tailwind red-800 */
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Generate Your Blog Post HTML</h1>
+
+        <!-- Message box for user feedback -->
+        <div id="messageBox" class="message-box rounded-lg"></div>
+
+        <div class="mb-5">
+            <label for="blogTitle">Blog Title:</label>
+            <input type="text" id="blogTitle" placeholder="Enter your blog post title" class="rounded-lg">
+        </div>
+
+        <div class="mb-5">
+            <label for="imageUrl">Image URL (Optional):</label>
+            <input type="text" id="imageUrl" placeholder="e.g., https://example.com/image.jpg" class="rounded-lg">
+        </div>
+
+        <div class="mb-5">
+            <label for="blogBody">Blog Body (Markdown or Plain Text):</label>
+            <textarea id="blogBody" placeholder="Write your blog post content here..." class="rounded-lg"></textarea>
+        </div>
+
+        <div class="button-group">
+            <button onclick="generateHtml()" class="rounded-lg">Generate HTML</button>
+            <button onclick="copyHtmlToClipboard()" class="rounded-lg">Copy HTML</button>
+        </div>
+
+        <div>
+            <label for="generatedHtmlOutput">Generated HTML:</label>
+            <textarea id="generatedHtmlOutput" readonly class="rounded-lg"></textarea>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Displays a temporary message to the user.
+         * @param {string} message - The message to display.
+         * @param {string} type - The type of message (e.g., 'success', 'error').
+         */
+        function showMessage(message, type) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = message;
+            messageBox.classList.remove('bg-red-100', 'text-red-800', 'bg-d1fae5', 'text-065f46'); // Remove all classes
+            messageBox.classList.add('show'); // Make visible first for transition
+
+            if (type === 'success') {
+                messageBox.classList.add('bg-d1fae5', 'text-065f46');
+            } else if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'text-red-800');
+            }
+
+            // Hide the message after 3 seconds
+            setTimeout(() => {
+                messageBox.classList.remove('show'); // Start fade out
+                setTimeout(() => {
+                    messageBox.style.display = 'none'; // Then hide fully
+                }, 500); // Wait for transition to complete
+            }, 3000);
+            messageBox.style.display = 'block'; // Ensure it's block for transition
+        }
+
+        /**
+         * Generates the HTML content for the blog post based on user input.
+         */
+        function generateHtml() {
+            const title = document.getElementById('blogTitle').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            const bodyContent = document.getElementById('blogBody').value;
+            const outputField = document.getElementById('generatedHtmlOutput');
+
+            if (!title || !bodyContent) {
+                showMessage('Please enter both a title and some body content.', 'error');
+                return;
+            }
+
+            // Format body content into paragraphs, assuming newlines indicate new paragraphs
+            const paragraphs = bodyContent.split('\n').map(p => {
+                const trimmedP = p.trim();
+                return trimmedP ? `<p>${trimmedP}</p>` : '';
+            }).filter(Boolean).join('\n            '); // Join with newlines and indentation
+
+            const currentDate = new Date();
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDate = currentDate.toLocaleDateString('en-US', dateOptions);
+
+            const generatedHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <style>
+        body {
+            /* Centering and basic layout */
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 20px;
+            box-sizing: border-box;
+            /* Default font and line-height */
+            font-family: sans-serif; /* Changed to generic sans-serif */
+            line-height: 1.6;
+            color: #333; /* Default text color */
+            background-color: #fff; /* Default white background */
+            text-align: center; /* Center all block-level content within body */
+        }
+        /* Style for images within the generated blog post */
+        img {
+            max-width: 100%; /* Ensure image doesn't overflow its container */
+            height: auto; /* Maintain aspect ratio */
+            max-height: 250px; /* Limit height to 250px */
+            display: block; /* Make image a block element for margin:auto to work */
+            margin: 0 auto; /* Center the image horizontally */
+        }
+        /* Override text-align for paragraphs in the blog body for readability */
+        .blog-body p {
+            text-align: left;
+        }
+        /* Explicitly center the back link paragraph if it needs more specific centering */
+        .back-link {
+            text-align: center; /* Ensure the link itself is centered */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="blog-post-container">
+        <p class="back-link"><a href="https://punk.sh">&lt;&lt; Back to punk.sh</a></p>
+        <h1>${title}</h1>
+        ${imageUrl ? `<img src="${imageUrl}" alt="Blog post image">` : ''}
+
+        <div class="blog-body">
+            ${paragraphs}
+        </div>
+        <div>
+            Published on: ${formattedDate}
+        </div>
+    </div>
+
+</body>
+</html>`;
+
+            outputField.value = generatedHtml;
+            showMessage('HTML generated successfully!', 'success');
+        }
+
+        /**
+         * Copies the generated HTML to the clipboard.
+         */
+        function copyHtmlToClipboard() {
+            const outputField = document.getElementById('generatedHtmlOutput');
+            if (outputField.value) {
+                // Use execCommand for broader compatibility within iframes
+                outputField.select();
+                try {
+                    const successful = document.execCommand('copy');
+                    const msg = successful ? 'Copied to clipboard!' : 'Failed to copy.';
+                    showMessage(msg, successful ? 'success' : 'error');
+                } catch (err) {
+                    showMessage('Error copying to clipboard.', 'error');
+                    console.error('Copy command failed:', err);
+                }
+            } else {
+                showMessage('No HTML to copy. Generate it first!', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
