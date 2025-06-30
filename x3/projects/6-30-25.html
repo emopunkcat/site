@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6-30-2025 - seamlessly, privately & securely torrenting with a dedicated VM</title>
+    <style>
+        body {
+            /* Centering and basic layout */
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 20px;
+            box-sizing: border-box;
+            /* Default font and line-height */
+            font-family: sans-serif; /* Changed to generic sans-serif */
+            line-height: 1.6;
+            color: #333; /* Default text color */
+            background-color: #fff; /* Default white background */
+            text-align: center; /* Center all block-level content within body */
+        }
+        /* Style for images within the generated blog post */
+        img {
+            max-width: 100%; /* Ensure image doesn't overflow its container */
+            height: auto; /* Maintain aspect ratio */
+            max-height: 250px; /* Limit height to 250px */
+            display: block; /* Make image a block element for margin:auto to work */
+            margin: 0 auto; /* Center the image horizontally */
+        }
+        /* Override text-align for paragraphs in the blog body for readability */
+        .blog-body p {
+            text-align: left;
+        }
+        /* Explicitly center the back link paragraph if it needs more specific centering */
+        .back-link {
+            text-align: center; /* Ensure the link itself is centered */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="blog-post-container">
+        <p class="back-link"><a href="https://punk.sh">&lt;&lt; Back to punk.sh</a></p>
+        <h1>6-30-2025 - seamlessly, privately & securely torrenting with a dedicated VM</h1>
+        <img src="https://i.imgur.com/0CsfMGh.jpeg" alt="Blog post image">
+
+        <div class="blog-body">
+            <p>yo!!</p>
+            <p>so recently ive setup a home lab, pretty basic - but it contains the following:</p>
+            <p>- 1x DIY built NAS</p>
+            <p>- 2x Proxmox servers</p>
+            <p>- Ubiquiti Gateway</p>
+            <p>- Ubiquiti managed switch</p>
+            <p>Ive got a few VLAN's and segregated networks so that my girlfriend can still use the internet safely and separately using a guest network on my gateway, but I keep all my servers on a single VLAN.</p>
+            <p>But the main feature i am taking advantage of using a gateway like the Ubiquiti's is the ability to add a VPN client - which gives the gateway and interface, in which any device assigned to that interface is routed through the VPN.</p>
+            <p>On my proxmox server's i setup a dedicated torrenting box - its running debian and has the full "ARR" stack (iykyk). However i dont want this traffic just exiting and entering using my ISP's public IP obviously!! And Id like to keep it all on the same server VLAN i had configured. The beauty of the VPN interface allows you to keep the same VLAN, whilst routing the WAN traffic through the VPN interface. Doing this, i can still have everything organized, attach my NAS storage for the torrented files, all while being under the cloak of a VPN.</p>
+            <p>ProtonVPN (which i pay like 10 bucks for) has a super easy to use configurator where you can generate a wiregaurd configuration file for your router/gateway, then on the gateway i just fking imported that file and now I have the interface where i can do whatever the hell i want. Great functionality, and the overhead on the gateway CPU is there, but with my network size its nothing bad and its certainly better than running a VPN client on the actual VM itself, or having a seperate VLAN already attached to the VPN interface, because honestly i dont feel like buying a second nic for my proxmox servers and theyre literally optiplex micros so theres no expansion for them honestly lol</p>
+            <p>This setup has worked extremely well for me - my torrent box dumps into the nas, and my jellyfin server reads from the nas perfectly. Very little configuration but its all extremely seamless and functions great.</p>
+        </div>
+        <div>
+            Published on: June 30, 2025
+        </div>
+    </div>
+
+</body>
+</html>
