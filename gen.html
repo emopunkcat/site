@@ -114,11 +114,9 @@
     </style>
 </head>
 <body>
-
     <div class="container">
         <h1>Generate Your Blog Post HTML</h1>
 
-        <!-- Message box for user feedback -->
         <div id="messageBox" class="message-box rounded-lg"></div>
 
         <div class="mb-5">
@@ -146,7 +144,6 @@
             <textarea id="generatedHtmlOutput" readonly class="rounded-lg"></textarea>
         </div>
     </div>
-
     <script>
         /**
          * Displays a temporary message to the user.
@@ -176,12 +173,30 @@
         }
 
         /**
+         * Safely escapes HTML entities in a string to prevent XSS.
+         * @param {string} text - The string to escape.
+         * @returns {string} The escaped string.
+         */
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        /**
          * Generates the HTML content for the blog post based on user input.
          */
         function generateHtml() {
-            const title = document.getElementById('blogTitle').value;
-            const imageUrl = document.getElementById('imageUrl').value;
-            const bodyContent = document.getElementById('blogBody').value;
+            // Escape all user inputs before using them
+            const title = escapeHtml(document.getElementById('blogTitle').value);
+            const imageUrl = escapeHtml(document.getElementById('imageUrl').value);
+            const bodyContent = document.getElementById('blogBody').value; // Markdown/plain text will be processed separately
+
             const outputField = document.getElementById('generatedHtmlOutput');
 
             if (!title || !bodyContent) {
@@ -189,11 +204,33 @@
                 return;
             }
 
-            // Format body content into paragraphs, assuming newlines indicate new paragraphs
+            // Process body content: assuming newlines indicate new paragraphs for plain text.
+            // If markdown support is truly needed, consider adding a markdown parser library
+            // like 'marked.js' and then sanitizing its output with something like DOMPurify.
+            // For now, we'll treat newlines as paragraphs and escape each paragraph.
             const paragraphs = bodyContent.split('\n').map(p => {
                 const trimmedP = p.trim();
-                return trimmedP ? `<p>${trimmedP}</p>` : '';
+                return trimmedP ? `<p>${escapeHtml(trimmedP)}</p>` : ''; // Escape each paragraph
             }).filter(Boolean).join('\n            '); // Join with newlines and indentation
+
+            // Validate image URL (simple check, more robust validation needed for production)
+            let safeImageUrlHtml = '';
+            if (imageUrl) {
+                try {
+                    const url = new URL(imageUrl);
+                    // Only allow http/https protocols for images
+                    if (url.protocol === 'http:' || url.protocol === 'https:') {
+                        safeImageUrlHtml = `<img src="${imageUrl}" alt="Blog post image">`;
+                    } else {
+                        showMessage('Invalid image URL protocol. Only http and https are allowed.', 'error');
+                        return; // Stop generation if URL is unsafe
+                    }
+                } catch (e) {
+                    showMessage('Invalid image URL format.', 'error');
+                    return; // Stop generation if URL is invalid
+                }
+            }
+
 
             const currentDate = new Date();
             const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -239,11 +276,10 @@
     </style>
 </head>
 <body>
-
     <div class="blog-post-container">
         <p class="back-link"><a href="https://punk.sh">&lt;&lt; Back to punk.sh</a></p>
         <h1>${title}</h1>
-        ${imageUrl ? `<img src="${imageUrl}" alt="Blog post image">` : ''}
+        ${safeImageUrlHtml}
 
         <div class="blog-body">
             ${paragraphs}
@@ -252,10 +288,8 @@
             Published on: ${formattedDate}
         </div>
     </div>
-
 </body>
 </html>`;
-
             outputField.value = generatedHtml;
             showMessage('HTML generated successfully!', 'success');
         }
@@ -266,7 +300,6 @@
         function copyHtmlToClipboard() {
             const outputField = document.getElementById('generatedHtmlOutput');
             if (outputField.value) {
-                // Use execCommand for broader compatibility within iframes
                 outputField.select();
                 try {
                     const successful = document.execCommand('copy');
